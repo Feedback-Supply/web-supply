@@ -1,3 +1,3 @@
 # Feedback Supply
-This is the Feedback Supply Swift package for Apple devices.
+This is the Feedback Supply Web package.
 Please refer to https://www.feedbacksupply.com for usage instructions.
