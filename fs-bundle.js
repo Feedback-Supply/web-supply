@@ -479,12 +479,19 @@ class FeedbackSupply{
 	}
 
 	createMeta(uuid, imageUUID){
+
+		let context = {
+			"deviceScreenScaleFactor": 1,
+			"deviceFormFactor": "desktop"
+		};
+
 		return {
 			feedbackId: uuid,
             authToken: this.token,
             userName: this.username,
             userData: "",
-            images: [imageUUID + ".png"]
+            images: [imageUUID + ".png"],
+			context: context
 		};
 	}
 
@@ -517,6 +524,11 @@ class FeedbackSupply{
 		const meta = this.createMeta(uuid, imageUUID);
 		zip.file('meta.json', JSON.stringify(meta));
 		
+		//add annotations
+		const annotations = this.anno.getAnnotations();
+		const annotationsData = JSON.stringify(annotations);
+		zip.file('annotations.json', annotationsData);
+
 		const token = this.token;
 		this.promise = zip.generateAsync({type:"blob"})
 		.then(async function(content) {
@@ -556,11 +568,10 @@ class FeedbackSupply{
 				
 				var anno = Annotorious.init({
 				  image: this.canvas, // image element or ID
-				  widgets: [
-					'COMMENT'
-				  ]
+				  readOnly: false,
+				  allowEmpty: true,
 				});
-				
+				anno.widgets = ['COMMENT'];
 				this.fsToolbarContainer();
 
 				Annotorious.Toolbar(anno, document.getElementById('fs-toolbar-container'), {'drawingTools': [ 'annotorious-tilted-box', 'rect', 'polygon', 'circle', 'ellipse', 'freehand', 'point', 'line']});
@@ -570,7 +581,7 @@ class FeedbackSupply{
 
 	toggleOverlay() {
 		if( this.overlay.classList.contains('open') )  {
-			window.document.scrollBy(0, 80);
+			
 			
 			this.toolbarContainer.remove();
 			
@@ -626,7 +637,7 @@ class FeedbackSupply{
 		}
 
 		if(config.token && config.token.length > 0){
-			console.log(config.token);
+			
 			this.token = config.token;
 		}else{
 			console.error('Feedback Supply: Please provide a valid token');
